@@ -167,6 +167,7 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
                 activeFilters.includes(filter) ? "selected" : ""
               }`}
               onClick={() => toggleFilter(filter)}
+              key={filter}
             >
               <img src={dietaryFilters[filter]} className="h-full p-2" />
               <div
