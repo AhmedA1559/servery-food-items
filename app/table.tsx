@@ -37,7 +37,110 @@ const dietaryFilters: { [key: string]: string } = {
     "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_sesame.svg",
 };
 
+const dayToTypeTimes: {
+  [key: string]: { [key: string]: { start: Date; end: Date } };
+} = {
+  Monday: {
+    LUNCH: {
+      start: new Date(0, 0, 0, 11, 30),
+      end: new Date(0, 0, 0, 13, 30),
+    },
+    DINNER: {
+      start: new Date(0, 0, 0, 17, 30),
+      end: new Date(0, 0, 0, 20, 0),
+    },
+  },
+  Tuesday: {
+    LUNCH: {
+      start: new Date(0, 0, 0, 11, 30),
+      end: new Date(0, 0, 0, 13, 30),
+    },
+    DINNER: {
+      start: new Date(0, 0, 0, 17, 30),
+      end: new Date(0, 0, 0, 20, 0),
+    },
+  },
+  Wednesday: {
+    LUNCH: {
+      start: new Date(0, 0, 0, 11, 30),
+      end: new Date(0, 0, 0, 13, 30),
+    },
+    DINNER: {
+      start: new Date(0, 0, 0, 17, 30),
+      end: new Date(0, 0, 0, 20, 0),
+    },
+  },
+  Thursday: {
+    LUNCH: {
+      start: new Date(0, 0, 0, 11, 30),
+      end: new Date(0, 0, 0, 13, 30),
+    },
+    DINNER: {
+      start: new Date(0, 0, 0, 17, 30),
+      end: new Date(0, 0, 0, 20, 0),
+    },
+  },
+  Friday: {
+    LUNCH: {
+      start: new Date(0, 0, 0, 11, 30),
+      end: new Date(0, 0, 0, 13, 30),
+    },
+    DINNER: {
+      start: new Date(0, 0, 0, 17, 30),
+      end: new Date(0, 0, 0, 20, 0),
+    },
+  },
+  Saturday: {
+    LUNCH: {
+      start: new Date(0, 0, 0, 11, 30),
+      end: new Date(0, 0, 0, 14, 0),
+    },
+    DINNER: {
+      start: new Date(0, 0, 0, 17, 0),
+      end: new Date(0, 0, 0, 20, 0),
+    },
+  },
+  Sunday: {
+    LUNCH: {
+      start: new Date(0, 0, 0, 11, 30),
+      end: new Date(0, 0, 0, 14, 0),
+    },
+    DINNER: {
+      start: new Date(0, 0, 0, 17, 0),
+      end: new Date(0, 0, 0, 20, 0),
+    },
+  },
+};
+
 const Table: React.FC<FoodTableProps> = ({ data }) => {
+  const currentDate = new Date();
+
+  const filterData: { [key: string]: { [key: string]: any } } = Object.keys(
+    data
+  ).reduce((filteredData: { [key: string]: { [key: string]: any } }, day) => {
+    const filteredMeals: { [key: string]: any } = Object.keys(data[day]).reduce(
+      (filteredMeals, mealType) => {
+        const endTime = dayToTypeTimes[day.split(",")[0]]?.[mealType]?.end;
+        // parse through day to get original date
+        const originalDate = new Date(Date.parse(day));
+        endTime.setFullYear(originalDate.getFullYear());
+        endTime.setMonth(originalDate.getMonth());
+        endTime.setDate(originalDate.getDate());
+        if (endTime && endTime > currentDate) {
+          filteredMeals[mealType] = data[day][mealType];
+        }
+        return filteredMeals;
+      },
+      {} as { [key: string]: any }
+    );
+
+    if (Object.keys(filteredMeals).length > 0) {
+      filteredData[day] = filteredMeals;
+    }
+
+    return filteredData;
+  }, {});
+
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   const toggleFilter = (filter: string) => {
@@ -90,8 +193,8 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
             </tr>
           </thead>
           <tbody>
-            {Object.keys(data).map((day) =>
-              Object.keys(data[day]).map((mealType) => (
+            {Object.keys(filterData).map((day) =>
+              Object.keys(filterData[day]).map((mealType) => (
                 <tr
                   key={`${day}-${mealType}`}
                   className="border border-gray-200"
@@ -101,6 +204,21 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
                       {mealType === "LUNCH" ? "Lunch" : "Dinner"}
                     </div>
                     <div className="text-sm text-gray-600">{day}</div>
+                    <div className="text-sm text-gray-600">
+                      {dayToTypeTimes[day.split(",")[0]]?.[
+                        mealType
+                      ]?.start?.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                      {" - "}
+                      {dayToTypeTimes[day.split(",")[0]]?.[
+                        mealType
+                      ]?.end?.toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
                   </td>
                   {serveries.map((servery) => (
                     <td key={servery} className="p-2">
