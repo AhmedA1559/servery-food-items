@@ -161,7 +161,7 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
         {Object.keys(dietaryFilters).map((filter) => (
           <>
             <div
-              className={`h-10 md:h-12 flex my-2 whitespace-nowrap rounded justify-between space-x-2 filter border 
+              className={`h-10 md:h-12 flex my-2 whitespace-nowrap rounded justify-between filter border 
                 items-stretch mr-4
                 ${filter.replace(/\s+/g, "").toLowerCase()} ${
                 activeFilters.includes(filter) ? "selected" : ""
