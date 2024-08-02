@@ -14,21 +14,28 @@ const serveries = [
   "West Servery",
 ];
 
-const dietaryFilters = [
-  "Milk",
-  "Gluten",
-  "Nuts",
-  "Tree nuts",
-  "Peanuts",
-  "Halal",
-  "Vegan",
-  "Vegetarian",
-  "Fish",
-  "Shellfish",
-  "Eggs",
-  "Soy",
-  "Sesame",
-];
+const dietaryFilters: { [key: string]: string } = {
+  Milk: "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_dairy.svg",
+  Gluten:
+    "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_gluten_0.svg",
+  "Tree nuts":
+    "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_treenut.svg",
+  Peanuts:
+    "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_peanut.svg",
+  Halal:
+    "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_halal--diet.svg",
+  Vegan:
+    "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_vegan--diet.svg",
+  Vegetarian:
+    "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_vegetarian--diet.svg",
+  Fish: "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_fish.svg",
+  Shellfish:
+    "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_shellfish.svg",
+  Eggs: "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_egg.svg",
+  Soy: "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_soybean.svg",
+  Sesame:
+    "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_sesame.svg",
+};
 
 const Table: React.FC<FoodTableProps> = ({ data }) => {
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
@@ -46,20 +53,28 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
   };
 
   return (
-    <div className="p-4">
-      <div className="flex flex-wrap mb-4 space-x-2">
-        {dietaryFilters.map((filter) => (
-          <button
-            key={filter}
-            className={`px-4 py-2 whitespace-nowrap rounded ${
-              activeFilters.includes(filter)
-                ? "bg-green-500 text-white"
-                : "bg-blue-500 text-white"
-            }`}
-            onClick={() => toggleFilter(filter)}
-          >
-            {filter}
-          </button>
+    <div>
+      <div className="flex flex-wrap">
+        {Object.keys(dietaryFilters).map((filter) => (
+          <>
+            <div
+              className={`h-10 md:h-12 flex my-2 whitespace-nowrap rounded justify-between space-x-2 filter border 
+                items-stretch mr-4
+                ${filter.replace(/\s+/g, "").toLowerCase()} ${
+                activeFilters.includes(filter) ? "selected" : ""
+              }`}
+              onClick={() => toggleFilter(filter)}
+            >
+              <img src={dietaryFilters[filter]} className="h-full p-2" />
+              <div
+                className={`
+                    flex items-center px-2 text-sm font-semibold transition duration-300 ease-in-out
+                    ${activeFilters.includes(filter) ? "selected" : ""}`}
+              >
+                {filter}
+              </div>
+            </div>
+          </>
         ))}
       </div>
       <div className="overflow-x-auto">

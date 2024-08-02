@@ -7,3 +7,121 @@
     text-wrap: balance;
   }
 }
+
+.filter {
+  font-size: 10;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.vegan {
+  color: #689e35;
+  border-color: #689e35;
+}
+
+.vegan .selected {
+  background-color: #689e35;
+}
+
+.vegetarian {
+  color: #689e35;
+  border-color: #689e35;
+}
+
+.vegetarian .selected {
+  background-color: #689e35;
+}
+
+.gluten {
+  color: #595151;
+  border-color: #595151;
+}
+
+.gluten .selected {
+  background-color: #595151;
+}
+
+.halal {
+  color: #8c0000;
+  border-color: #8c0000;
+}
+
+.halal .selected {
+  background-color: #8c0000;
+}
+
+.soy {
+  color: #bf266c;
+  border-color: #bf266c;
+}
+
+.soy .selected {
+  background-color: #bf266c;
+}
+
+.milk {
+  color: #2950b2;
+  border-color: #2950b2;
+}
+
+.milk .selected {
+  background-color: #2950b2;
+}
+
+.fish {
+  color: #5625c1;
+  border-color: #5625c1;
+}
+
+.fish .selected {
+  background-color: #5625c1;
+}
+
+.shellfish {
+  color: #038771;
+  border-color: #038771;
+}
+
+.shellfish .selected {
+  background-color: #038771;
+}
+
+.eggs {
+  color: #88566f;
+  border-color: #88566f;
+}
+
+.eggs .selected {
+  background-color: #88566f;
+}
+
+.peanuts {
+  color: #e28120;
+  border-color: #e28120;
+}
+
+.peanuts .selected {
+  background-color: #e28120;
+}
+
+.treenuts {
+  color: #aa6f11;
+  border-color: #aa6f11;
+}
+
+.treenuts .selected {
+  background-color: #aa6f11;
+}
+
+.sesame {
+  color: #b7501d;
+  border-color: #b7501d;
+}
+
+.sesame .selected {
+  background-color: #b7501d;
+}
+
+.selected {
+  color: #f7f7f7;
+}
