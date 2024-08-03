@@ -1,5 +1,6 @@
 import axios from "axios";
 import cheerio from "cheerio";
+import { randomInt } from "crypto";
 import { format, subDays } from "date-fns";
 
 // Define the URLs for each servery
@@ -191,7 +192,15 @@ export const fetchMenuData = async (): Promise<{
 
   const promises = Object.entries(urls).map(async ([serveryName, url]) => {
     try {
-      const response = await axios.get(url);
+      // Use no caching to get the latest menu and also a fake parameter to prevent caching
+      const response = await axios.get(url, {
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+        params: {
+          fake: randomInt(365),
+        },
+      });
       const html = response.data;
 
       const foodItems = parseHtml(html, serveryName);
