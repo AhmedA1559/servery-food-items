@@ -17,7 +17,7 @@ export default async function Home() {
           </button>
         </a>
       </div>
-      <Table data={data.weeklyMenu} />
+      <Table data={data} />
     </div>
   );
 }

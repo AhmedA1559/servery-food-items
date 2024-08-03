@@ -1,9 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { WeeklyMenu } from "./utils/fetchData";
+import { Menu } from "./utils/fetchData";
 
 interface FoodTableProps {
-  data: WeeklyMenu;
+  data: Menu;
 }
 
 const serveries = [
@@ -155,30 +155,39 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
     return activeFilters.some((filter) => dietaryRestrictions.includes(filter));
   };
 
+  const groupByCategory = (items: FoodItem[]) => {
+    return items.reduce((acc: { [key: string]: FoodItem[] }, item) => {
+      const category = item.category || "Uncategorized";
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    }, {});
+  };
+
   return (
     <div>
       <div className="flex flex-wrap">
         {Object.keys(dietaryFilters).map((filter) => (
-          <>
-            <div
-              className={`h-10 md:h-12 flex my-2 whitespace-nowrap rounded justify-between filter border 
+          <div
+            className={`h-10 md:h-12 flex my-2 whitespace-nowrap rounded justify-between filter border 
                 items-stretch mr-4
                 ${filter.replace(/\s+/g, "").toLowerCase()} ${
-                activeFilters.includes(filter) ? "selected" : ""
-              }`}
-              onClick={() => toggleFilter(filter)}
-              key={filter}
-            >
-              <img src={dietaryFilters[filter]} className="h-full p-2" />
-              <div
-                className={`
+              activeFilters.includes(filter) ? "selected" : ""
+            }`}
+            onClick={() => toggleFilter(filter)}
+            key={filter}
+          >
+            <img src={dietaryFilters[filter]} className="h-full p-2" />
+            <div
+              className={`
                     flex items-center px-2 text-sm font-semibold transition duration-300 ease-in-out
                     ${activeFilters.includes(filter) ? "selected" : ""}`}
-              >
-                {filter}
-              </div>
+            >
+              {filter}
             </div>
-          </>
+          </div>
         ))}
       </div>
       <div className="overflow-x-auto">
@@ -224,18 +233,31 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
                   {serveries.map((servery) => (
                     <td key={servery} className="p-2">
                       <ul className="list-disc list-inside">
-                        {data[day][mealType][servery]?.map((item) => (
-                          <li
-                            key={item.food}
-                            className={`text-sm transition duration-300 ease-in-out ${
-                              isHighlighted(item.dietaryRestrictions)
-                                ? "bg-yellow-200"
-                                : ""
-                            }`}
-                          >
-                            {item.food}
-                          </li>
-                        ))}
+                        {Object.entries(
+                          groupByCategory(
+                            filterData[day][mealType][servery] || []
+                          )
+                        )
+                          .sort(([a], [b]) => a.localeCompare(b))
+                          .map(([category, items]) => (
+                            <div key={category} className="text-sm">
+                              <div className="font-semibold">{category}</div>
+                              <ul className="list-disc list-inside">
+                                {items.map((item) => (
+                                  <li
+                                    key={item.food}
+                                    className={`text-sm transition duration-300 ease-in-out pl-4 ${
+                                      isHighlighted(item.dietaryRestrictions)
+                                        ? "bg-yellow-200"
+                                        : ""
+                                    }`}
+                                  >
+                                    {item.food}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
                       </ul>
                     </td>
                   ))}

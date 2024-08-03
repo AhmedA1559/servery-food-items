@@ -1,7 +1,6 @@
 import axios from "axios";
 import cheerio from "cheerio";
-import { randomInt } from "crypto";
-import { format, subDays } from "date-fns";
+import { format, subDays, addDays } from "date-fns";
 
 // Define the URLs for each servery
 const urls: { [key: string]: string } = {
@@ -12,31 +11,7 @@ const urls: { [key: string]: string } = {
   "West Servery": "https://dining.rice.edu/west-servery",
 };
 
-const currentDate = new Date();
-
-const weekDays: string[] = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
-
-const weekDayMap: { [key: string]: Date } = weekDays.reduce(
-  (acc, day, index) => {
-    // Since Sunday is 0, we need to add 6 to get the previous day
-    acc[day.toUpperCase()] = subDays(
-      currentDate,
-      ((currentDate.getDay() + 6) % 7) - index
-    );
-    return acc;
-  },
-  {} as { [key: string]: Date }
-);
-
-export interface FoodItem {
+interface FoodItem {
   servery: string;
   date: string;
   mealType: string;
@@ -45,7 +20,7 @@ export interface FoodItem {
   category?: string;
 }
 
-export interface WeeklyMenu {
+export interface Menu {
   [day: string]: {
     [mealType: string]: {
       [servery: string]: FoodItem[];
@@ -53,75 +28,11 @@ export interface WeeklyMenu {
   };
 }
 
-interface DailyMenu {
-  [mealType: string]: {
-    [servery: string]: {
-      [category: string]: FoodItem[];
-    };
-  };
-}
-
-const parseHtml = (html: string, serveryName: string): FoodItem[] => {
-  const $ = cheerio.load(html);
-  const blockWeeklyLunch = $("#block-weeklylunch");
-
-  if (!blockWeeklyLunch.length) {
-    return [];
-  }
-
-  const mealSections = blockWeeklyLunch.find(".views-element-container");
-  const foodItems: FoodItem[] = [];
-  let previousDateStr: string | null = null;
-  const seenItems = new Set<string>();
-
-  mealSections.each((_, mealSection) => {
-    const header = $(mealSection).find("header");
-    const weekDayTag = header.find("h4.static-date");
-    const weekDay = weekDayTag.text().trim().toUpperCase();
-    const mealTypeTag = header.find("h2");
-    const mealType = mealTypeTag.text().trim();
-
-    const date = weekDayMap[weekDay];
-    let dateStr = date ? format(date, "EEEE, MMMM dd, yyyy") : null;
-
-    if (mealType === "DINNER" && previousDateStr) {
-      dateStr = previousDateStr;
-    }
-
-    const sections = $(mealSection).find(".menu-items");
-
-    sections.each((_, section) => {
-      $(section)
-        .find("a.mitem")
-        .each((_, item) => {
-          const foodName = $(item).find("div.mname").text().trim();
-          const dietaryIcons = $(item).find("span.tooltip");
-          const dietaryRestrictions = dietaryIcons
-            .map((_, icon) => $(icon).attr("data-content") || "")
-            .get();
-
-          const foodItemStr = `${serveryName}-${dateStr}-${mealType}-${foodName}`;
-
-          if (!seenItems.has(foodItemStr)) {
-            foodItems.push({
-              servery: serveryName,
-              date: dateStr!,
-              mealType,
-              food: foodName,
-              dietaryRestrictions,
-            });
-            seenItems.add(foodItemStr);
-          }
-        });
-    });
-
-    previousDateStr = dateStr;
-  });
-
-  return foodItems;
-};
-
-const parseTodayMenu = (html: string, serveryName: string): FoodItem[] => {
+const parseTodayMenu = (
+  html: string,
+  serveryName: string,
+  date: Date
+): FoodItem[] => {
   const $ = cheerio.load(html);
   const blockTodayMenu = $("#block-weeklymenubystations");
 
@@ -131,25 +42,30 @@ const parseTodayMenu = (html: string, serveryName: string): FoodItem[] => {
 
   const foodItems: FoodItem[] = [];
 
+  const dayOfWeek = (date.getDay() + 6) % 7;
   const mealTypes = [
     {
       type: "LUNCH",
-      blockId: "block-views-block-weekly-menu-by-stations-block-4",
+      blockId: `block-views-block-weekly-menu-by-stations-block-${
+        dayOfWeek + 2
+      }`,
     },
     {
       type: "DINNER",
-      blockId: "block-views-block-weekly-menu-by-stations-block-12",
+      blockId: `block-views-block-weekly-menu-by-stations-block-${
+        dayOfWeek + 10
+      }`,
     },
   ];
 
   mealTypes.forEach(({ type, blockId }) => {
-    const mealBlock = blockTodayMenu.find(`#${blockId}`);
-    if (!mealBlock.length) {
+    const block = blockTodayMenu.find(`#${blockId}`);
+    if (!block.length) {
       return;
     }
 
     // select either .menu-items or an h3 tag
-    const sections = mealBlock.find(".menu-items, h3");
+    const sections = block.find(".menu-items, h3");
     let currentCategory = "";
     sections.each((_, section) => {
       // if section is an h3 tag, it is a category, so set it to currentCategory
@@ -170,7 +86,7 @@ const parseTodayMenu = (html: string, serveryName: string): FoodItem[] => {
 
           foodItems.push({
             servery: serveryName,
-            date: format(currentDate, "EEEE, MMMM dd, yyyy"),
+            date: format(date, "EEEE, MMMM dd, yyyy"),
             mealType: type,
             food: foodName,
             dietaryRestrictions,
@@ -183,86 +99,87 @@ const parseTodayMenu = (html: string, serveryName: string): FoodItem[] => {
   return foodItems;
 };
 
-export const fetchMenuData = async (): Promise<{
-  weeklyMenu: WeeklyMenu;
-  dailyMenu: DailyMenu;
-}> => {
-  const weeklyMenu: WeeklyMenu = {};
-  const dailyMenu: DailyMenu = {};
+const parseWeeklyMenu = async (
+  serveryName: string,
+  url: string
+): Promise<Menu> => {
+  const weeklyMenu: Menu = {};
+  const currentDate = new Date();
+
+  const response = await axios.get(url, {
+    headers: { "Cache-Control": "no-cache" },
+  });
+  const html = response.data;
+  // get the date of this week's Monday
+  const monday = subDays(currentDate, (currentDate.getDay() + 6) % 7);
+  for (let i = 0; i < 7; i++) {
+    const date = addDays(monday, i);
+
+    const foodItems = parseTodayMenu(html, serveryName, date);
+    const seenItems: {
+      [mealType: string]: Set<string>;
+    } = {};
+
+    foodItems.forEach((item) => {
+      const { date, mealType, servery, food, dietaryRestrictions, category } =
+        item;
+      if (!weeklyMenu[date]) {
+        weeklyMenu[date] = {};
+      }
+      if (!weeklyMenu[date][mealType]) {
+        weeklyMenu[date][mealType] = {};
+        seenItems[mealType] = new Set();
+      }
+      if (!weeklyMenu[date][mealType][servery]) {
+        weeklyMenu[date][mealType][servery] = [];
+      }
+      if (seenItems[mealType].has(food)) {
+        return;
+      }
+      weeklyMenu[date][mealType][servery].push({
+        servery,
+        date,
+        mealType,
+        food,
+        dietaryRestrictions,
+        category,
+      });
+      seenItems[mealType].add(food);
+    });
+  }
+
+  return weeklyMenu;
+};
+
+export const fetchMenuData = async (): Promise<Menu> => {
+  const weeklyMenu: Menu = {};
 
   const promises = Object.entries(urls).map(async ([serveryName, url]) => {
     try {
-      // Use no caching to get the latest menu and also a fake parameter to prevent caching
-      const response = await axios.get(url, {
-        headers: {
-          "Cache-Control": "no-cache",
-          Pragma: "no-cache",
-          Expires: "0",
-        },
-      });
-      const html = response.data;
+      const serveryWeeklyMenu = await parseWeeklyMenu(serveryName, url);
 
-      const foodItems = parseHtml(html, serveryName);
-      foodItems.forEach((item) => {
-        const { date, mealType, servery, food, dietaryRestrictions } = item;
+      // combine together the weekly menu for all serveries
+      Object.entries(serveryWeeklyMenu).forEach(([date, dailyMenu]) => {
         if (!weeklyMenu[date]) {
           weeklyMenu[date] = {};
         }
-        if (!weeklyMenu[date][mealType]) {
-          weeklyMenu[date][mealType] = {};
-        }
-        if (!weeklyMenu[date][mealType][servery]) {
-          weeklyMenu[date][mealType][servery] = [];
-        }
-        weeklyMenu[date][mealType][servery].push({
-          servery,
-          date,
-          mealType,
-          food,
-          dietaryRestrictions,
-        });
-      });
-
-      const todayFoodItems = parseTodayMenu(html, serveryName);
-      const seenItems: {
-        [mealType: string]: {
-          [servery: string]: Set<string>;
-        };
-      } = {};
-      todayFoodItems.forEach((item) => {
-        const { mealType, servery, food, dietaryRestrictions, category } = item;
-        if (!dailyMenu[mealType]) {
-          dailyMenu[mealType] = {};
-          seenItems[mealType] = {};
-        }
-        if (!dailyMenu[mealType][servery]) {
-          dailyMenu[mealType][servery] = {};
-          if (!seenItems[mealType]) {
-            seenItems[mealType] = {};
+        Object.entries(dailyMenu).forEach(([mealType, serveryMenu]) => {
+          if (!weeklyMenu[date][mealType]) {
+            weeklyMenu[date][mealType] = {};
           }
-          seenItems[mealType][servery] = new Set<string>();
-        }
-        if (category && !dailyMenu[mealType][servery][category]) {
-          dailyMenu[mealType][servery][category] = [];
-        }
-        if (category && !seenItems[mealType][servery].has(food)) {
-          dailyMenu[mealType][servery][category].push({
-            servery,
-            date: item.date,
-            mealType,
-            food,
-            dietaryRestrictions,
-            category,
+          Object.entries(serveryMenu).forEach(([servery, foodItems]) => {
+            if (!weeklyMenu[date][mealType][servery]) {
+              weeklyMenu[date][mealType][servery] = [];
+            }
+            weeklyMenu[date][mealType][servery].push(...foodItems);
           });
-          seenItems[mealType][servery].add(food);
-        }
+        });
       });
     } catch (error) {
       console.error(`Failed to retrieve content from ${url}`, error);
     }
   });
-
   await Promise.all(promises);
 
-  return { weeklyMenu, dailyMenu };
+  return weeklyMenu;
 };
