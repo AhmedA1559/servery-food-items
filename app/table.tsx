@@ -227,7 +227,7 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
                         {data[day][mealType][servery]?.map((item) => (
                           <li
                             key={item.food}
-                            className={`text-sm ${
+                            className={`text-sm transition duration-300 ease-in-out ${
                               isHighlighted(item.dietaryRestrictions)
                                 ? "bg-yellow-200"
                                 : ""
