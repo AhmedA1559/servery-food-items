@@ -1,6 +1,6 @@
 "use client";
 import React, { useState } from "react";
-import { Menu } from "./utils/fetchData";
+import { Menu, FoodItem } from "./utils/fetchData";
 
 interface FoodTableProps {
   data: Menu;

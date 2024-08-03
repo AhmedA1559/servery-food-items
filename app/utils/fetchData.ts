@@ -11,7 +11,7 @@ const urls: { [key: string]: string } = {
   "West Servery": "https://dining.rice.edu/west-servery",
 };
 
-interface FoodItem {
+export interface FoodItem {
   servery: string;
   date: string;
   mealType: string;
