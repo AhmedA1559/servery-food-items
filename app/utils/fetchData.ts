@@ -197,9 +197,6 @@ export const fetchMenuData = async (): Promise<{
         headers: {
           "Cache-Control": "no-cache",
         },
-        params: {
-          fake: randomInt(365),
-        },
       });
       const html = response.data;
 
