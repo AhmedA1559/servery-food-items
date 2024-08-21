@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Menu, FoodItem } from "./utils/fetchData";
 
 interface FoodTableProps {
@@ -141,7 +141,23 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
     return filteredData;
   }, {});
 
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [activeFilters, setActiveFilters] = useState<string[]>(
+    JSON.parse(localStorage.getItem("activeFilters") ?? "[]")
+  );
+
+  useEffect(() => {
+    // Save activeFilters to local storage
+    localStorage.setItem("activeFilters", JSON.stringify(activeFilters));
+    console.log("setting to ", activeFilters);
+  }, [activeFilters]);
+
+  useEffect(() => {
+    // Retrieve activeFilters from local storage
+    const storedFilters = localStorage.getItem("activeFilters");
+    if (storedFilters) {
+      setActiveFilters(JSON.parse(storedFilters));
+    }
+  }, []);
 
   const toggleFilter = (filter: string) => {
     setActiveFilters((prevFilters) =>
