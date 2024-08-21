@@ -142,7 +142,9 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
   }, {});
 
   const [activeFilters, setActiveFilters] = useState<string[]>(
-    JSON.parse(localStorage.getItem("activeFilters") ?? "[]")
+    typeof window !== "undefined"
+      ? JSON.parse(localStorage.getItem("activeFilters") ?? "[]")
+      : []
   );
 
   useEffect(() => {
