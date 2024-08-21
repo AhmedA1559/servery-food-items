@@ -180,6 +180,20 @@ export const fetchMenuData = async (): Promise<Menu> => {
     }
   });
   await Promise.all(promises);
+  // Convert keys into dates and sort them
+  const sortedDates = Object.keys(weeklyMenu).sort((a, b) => {
+    const dateA = new Date(a);
+    const dateB = new Date(b);
+    return dateA.getTime() - dateB.getTime();
+  });
 
-  return weeklyMenu;
+  // Create a new sorted menu object
+  const sortedMenu: Menu = {};
+
+  // Populate the sorted menu object with sorted dates
+  sortedDates.forEach((date) => {
+    sortedMenu[date] = weeklyMenu[date];
+  });
+
+  return sortedMenu;
 };
