@@ -263,6 +263,18 @@ export const fetchMenuData = async (): Promise<{
   });
 
   await Promise.all(promises);
-
+  // Sort the weeklyMenu by date
+  Object.keys(weeklyMenu).forEach((date) => {
+    const sortedMealTypes = Object.keys(weeklyMenu[date]).sort((a, b) => {
+      if (a === "LUNCH") return -1;
+      if (b === "LUNCH") return 1;
+      return a.localeCompare(b);
+    });
+    const sortedMenu = sortedMealTypes.reduce((acc, mealType) => {
+      acc[mealType] = weeklyMenu[date][mealType];
+      return acc;
+    }, {});
+    weeklyMenu[date] = sortedMenu;
+  });
   return { weeklyMenu, dailyMenu };
 };
