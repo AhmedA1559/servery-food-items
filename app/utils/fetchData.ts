@@ -107,7 +107,11 @@ const parseWeeklyMenu = async (
   const currentDate = new Date();
 
   const response = await axios.get(url, {
-    headers: { "Cache-Control": "no-cache" },
+    headers: {
+      "Cache-Control": "no-cache",
+      Accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    },
   });
   const html = response.data;
   // get the date of this week's Monday
