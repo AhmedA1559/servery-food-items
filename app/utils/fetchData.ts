@@ -115,8 +115,32 @@ const parseWeeklyMenu = async (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
     },
   };
-  const response = await axios.request(config);
-  const html = response.data;
+  const response = await fetch(url, {
+    headers: {
+      accept:
+        "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+      "accept-language": "en-US,en;q=0.9",
+      "cache-control": "max-age=0",
+      "if-none-match": 'W/"1725027586"',
+      priority: "u=0, i",
+      "sec-ch-ua":
+        '"Not)A;Brand";v="99", "Google Chrome";v="127", "Chromium";v="127"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"macOS"',
+      "sec-fetch-dest": "document",
+      "sec-fetch-mode": "navigate",
+      "sec-fetch-site": "none",
+      "sec-fetch-user": "?1",
+      "upgrade-insecure-requests": "1",
+    },
+    referrerPolicy: "strict-origin-when-cross-origin",
+    body: null,
+    method: "GET",
+    mode: "cors",
+    credentials: "include",
+  });
+  console.log(response.status);
+  const html = await response.text();
   // get the date of this week's Monday
   const monday = subDays(currentDate, (currentDate.getDay() + 6) % 7);
   for (let i = 0; i < 7; i++) {
