@@ -4,7 +4,8 @@ import { format, subDays, addDays } from "date-fns";
 
 // Define the URLs for each servery
 const urls: { [key: string]: string } = {
-  "Seibel Servery": "https://dining.rice.edu/seibel-servery",
+  "Seibel Servery":
+    "https://dining.rice.edu/seibel-servery?field_dietary_restrictions_value=All",
   "Baker Servery": "https://dining.rice.edu/baker-college-kitchen",
   "South Servery": "https://dining.rice.edu/south-servery",
   "North Servery": "https://dining.rice.edu/north-servery",
@@ -107,11 +108,7 @@ const parseWeeklyMenu = async (
   const currentDate = new Date();
 
   const response = await axios.get(url, {
-    headers: {
-      "Cache-Control": "no-cache",
-      Accept:
-        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-    },
+    headers: {},
   });
   const html = response.data;
   // get the date of this week's Monday
