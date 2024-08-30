@@ -4,8 +4,7 @@ import { format, subDays, addDays } from "date-fns";
 
 // Define the URLs for each servery
 const urls: { [key: string]: string } = {
-  "Seibel Servery":
-    "https://dining.rice.edu/seibel-servery?field_dietary_restrictions_value=All",
+  "Seibel Servery": "https://dining.rice.edu/seibel-servery",
   "Baker Servery": "https://dining.rice.edu/baker-college-kitchen",
   "South Servery": "https://dining.rice.edu/south-servery",
   "North Servery": "https://dining.rice.edu/north-servery",
