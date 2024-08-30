@@ -106,15 +106,6 @@ const parseWeeklyMenu = async (
   const weeklyMenu: Menu = {};
   const currentDate = new Date();
 
-  const config = {
-    method: "get",
-    maxBodyLength: Infinity,
-    url: url,
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.1 Safari/605.1.15",
-    },
-  };
   const response = await fetch(url, {
     headers: {
       accept:
@@ -139,7 +130,7 @@ const parseWeeklyMenu = async (
     mode: "cors",
     credentials: "include",
   });
-  console.log(response.status);
+  console.log(`${response.status}, ${serveryName}`);
   const html = await response.text();
   // get the date of this week's Monday
   const monday = subDays(currentDate, (currentDate.getDay() + 6) % 7);
