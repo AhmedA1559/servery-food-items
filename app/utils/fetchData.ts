@@ -106,9 +106,13 @@ const parseWeeklyMenu = async (
   const weeklyMenu: Menu = {};
   const currentDate = new Date();
 
-  const response = await axios.get(url, {
-    headers: {},
-  });
+  const config = {
+    method: 'get',
+    maxBodyLength: Infinity,
+    url: url,
+    headers: { }
+  };
+  const response = await axios.request(config)
   const html = response.data;
   // get the date of this week's Monday
   const monday = subDays(currentDate, (currentDate.getDay() + 6) % 7);
