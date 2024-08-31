@@ -105,7 +105,7 @@ const parseWeeklyMenu = async (
 ): Promise<Menu> => {
   const weeklyMenu: Menu = {};
   const currentDate = new Date();
-
+  console.log(`Fetching ${serveryName} menu...`);
   const response = await fetch(url, {
     headers: {
       accept:
