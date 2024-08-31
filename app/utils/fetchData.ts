@@ -106,7 +106,7 @@ const parseWeeklyMenu = async (
   const weeklyMenu: Menu = {};
   const currentDate = new Date();
   console.log(`Fetching ${serveryName} menu...`);
-  const response = await fetch(url, {
+  let response = await fetch(url, {
     headers: {
       accept:
         "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
@@ -120,7 +120,23 @@ const parseWeeklyMenu = async (
     credentials: "include",
   });
   console.log(`${response.status}, ${serveryName}`);
-  const html = await response.text();
+  let html = "";
+  if (response.status != 200) {
+    response = await fetch(url + "?field_dietary_restrictions_value=All", {
+      headers: {
+        accept:
+          "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7",
+        "accept-language": "en-US,en;q=0.9",
+        "User-Agent": "XY",
+      },
+      referrerPolicy: "strict-origin-when-cross-origin",
+      body: null,
+      method: "GET",
+      mode: "cors",
+      credentials: "include",
+    });
+  }
+  html = await response.text();
   // get the date of this week's Monday
   const monday = subDays(currentDate, (currentDate.getDay() + 6) % 7);
   for (let i = 0; i < 7; i++) {
