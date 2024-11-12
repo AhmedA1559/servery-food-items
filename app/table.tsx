@@ -1,9 +1,10 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { Menu, FoodItem } from "./utils/fetchData";
+"use client"
+import React, { useEffect, useState } from "react"
+import { Menu, FoodItem } from "./utils/fetchData"
+import { ExternalLink } from "lucide-react"
 
 interface FoodTableProps {
-  data: Menu;
+  data: Menu
 }
 
 const serveries = [
@@ -12,7 +13,7 @@ const serveries = [
   "South Servery",
   "North Servery",
   "West Servery",
-];
+]
 
 const dietaryFilters: { [key: string]: string } = {
   Milk: "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_dairy.svg",
@@ -35,10 +36,10 @@ const dietaryFilters: { [key: string]: string } = {
   Soy: "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_soybean.svg",
   Sesame:
     "https://dining.rice.edu/sites/g/files/bxs4236/files/2023-06/icon_sesame.svg",
-};
+}
 
 const dayToTypeTimes: {
-  [key: string]: { [key: string]: { start: Date; end: Date } };
+  [key: string]: { [key: string]: { start: Date; end: Date } }
 } = {
   Monday: {
     LUNCH: {
@@ -110,61 +111,61 @@ const dayToTypeTimes: {
       end: new Date(0, 0, 0, 20, 0),
     },
   },
-};
+}
 
 const Table: React.FC<FoodTableProps> = ({ data }) => {
-  const currentDate = new Date();
+  const currentDate = new Date()
 
   const filterData: { [key: string]: { [key: string]: any } } = Object.keys(
     data
   ).reduce((filteredData: { [key: string]: { [key: string]: any } }, day) => {
     const filteredMeals: { [key: string]: any } = Object.keys(data[day]).reduce(
       (filteredMeals, mealType) => {
-        const endTime = dayToTypeTimes[day.split(",")[0]]?.[mealType]?.end;
+        const endTime = dayToTypeTimes[day.split(",")[0]]?.[mealType]?.end
         // parse through day to get original date
-        const originalDate = new Date(Date.parse(day));
-        endTime.setFullYear(originalDate.getFullYear());
-        endTime.setMonth(originalDate.getMonth());
-        endTime.setDate(originalDate.getDate());
+        const originalDate = new Date(Date.parse(day))
+        endTime.setFullYear(originalDate.getFullYear())
+        endTime.setMonth(originalDate.getMonth())
+        endTime.setDate(originalDate.getDate())
         if (endTime && endTime > currentDate) {
-          filteredMeals[mealType] = data[day][mealType];
+          filteredMeals[mealType] = data[day][mealType]
         }
-        return filteredMeals;
+        return filteredMeals
       },
       {} as { [key: string]: any }
-    );
+    )
 
     if (Object.keys(filteredMeals).length > 0) {
-      filteredData[day] = filteredMeals;
+      filteredData[day] = filteredMeals
     }
 
-    return filteredData;
-  }, {});
+    return filteredData
+  }, {})
 
-  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [activeFilters, setActiveFilters] = useState<string[]>([])
 
   const toggleFilter = (filter: string) => {
     setActiveFilters((prevFilters) =>
       prevFilters.includes(filter)
         ? prevFilters.filter((f) => f !== filter)
         : [...prevFilters, filter]
-    );
-  };
+    )
+  }
 
   const isHighlighted = (dietaryRestrictions: string[]) => {
-    return activeFilters.some((filter) => dietaryRestrictions.includes(filter));
-  };
+    return activeFilters.some((filter) => dietaryRestrictions.includes(filter))
+  }
 
   const groupByCategory = (items: FoodItem[]) => {
     return items.reduce((acc: { [key: string]: FoodItem[] }, item) => {
-      const category = item.category || "Uncategorized";
+      const category = item.category || "Uncategorized"
       if (!acc[category]) {
-        acc[category] = [];
+        acc[category] = []
       }
-      acc[category].push(item);
-      return acc;
-    }, {});
-  };
+      acc[category].push(item)
+      return acc
+    }, {})
+  }
 
   return (
     <div>
@@ -191,13 +192,21 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
         ))}
       </div>
       <div className="overflow-x-auto">
-        <table className="min-w-full table-auto border-collapse">
+        <table className="min-w-full table-auto border border-gray-200">
           <thead>
-            <tr className="border border-gray-200">
-              <th className="p-2"></th>
+            <tr>
+              <th className="border border-gray-200 p-2"></th>
               {serveries.map((servery) => (
-                <th key={servery} className="p-2">
-                  {servery.split(" ")[0]}
+                <th key={servery} className="border border-gray-200 p-2 ">
+                  <a
+                    href={`https://dining.rice.edu/${servery
+                      .split(" ")[0]
+                      .toLowerCase()}-servery`}
+                    className="hover:text-blue-600 flex flex-row justify-center items-center gap-2"
+                  >
+                    {servery.split(" ")[0]}
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
                 </th>
               ))}
             </tr>
@@ -205,11 +214,8 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
           <tbody>
             {Object.keys(filterData).map((day) =>
               Object.keys(filterData[day]).map((mealType) => (
-                <tr
-                  key={`${day}-${mealType}`}
-                  className="border border-gray-200"
-                >
-                  <td className="p-2 bg-gray-100">
+                <tr key={`${day}-${mealType}`}>
+                  <td className="border border-gray-200 p-2 bg-gray-100">
                     <div className="font-semibold">
                       {mealType === "LUNCH" ? "Lunch" : "Dinner"}
                     </div>
@@ -231,7 +237,7 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
                     </div>
                   </td>
                   {serveries.map((servery) => (
-                    <td key={servery} className="p-2">
+                    <td key={servery} className="border-2 border-gray-300 p-2">
                       <ul className="list-disc list-inside">
                         {Object.entries(
                           groupByCategory(
@@ -268,7 +274,7 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
         </table>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Table;
+export default Table
