@@ -1,6 +1,7 @@
 "use client"
 import React, { useEffect, useState } from "react"
 import { Menu, FoodItem } from "./utils/fetchData"
+import { ExternalLink } from "lucide-react"
 
 interface FoodTableProps {
   data: Menu
@@ -196,14 +197,15 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
             <tr>
               <th className="border border-gray-200 p-2"></th>
               {serveries.map((servery) => (
-                <th key={servery} className="border border-gray-200 p-2">
+                <th key={servery} className="border border-gray-200 p-2 ">
                   <a
                     href={`https://dining.rice.edu/${servery
                       .split(" ")[0]
                       .toLowerCase()}-servery`}
-                    className="hover:text-blue-600"
+                    className="hover:text-blue-600 flex flex-row justify-center items-center gap-2"
                   >
                     {servery.split(" ")[0]}
+                    <ExternalLink className="h-4 w-4" />
                   </a>
                 </th>
               ))}
