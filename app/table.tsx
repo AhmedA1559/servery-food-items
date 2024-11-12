@@ -235,7 +235,7 @@ const Table: React.FC<FoodTableProps> = ({ data }) => {
                     </div>
                   </td>
                   {serveries.map((servery) => (
-                    <td key={servery} className="border-2 border-gray-400 p-2">
+                    <td key={servery} className="border-2 border-gray-300 p-2">
                       <ul className="list-disc list-inside">
                         {Object.entries(
                           groupByCategory(
